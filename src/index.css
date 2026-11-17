@@ -1,0 +1,172 @@
+@import 'tailwindcss';
+@import '@heroui/styles';
+
+@theme {
+  --font-sans:
+    'Inter var', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  --color-ink: oklch(0.24 0.02 265);
+  --color-ink-muted: oklch(0.52 0.02 265);
+  --color-canvas: oklch(0.985 0.002 265);
+  --color-panel: oklch(1 0 0);
+  --color-hairline: oklch(0.92 0.005 265);
+}
+
+:root {
+  color-scheme: light;
+  --app-canvas: var(--color-canvas);
+  --app-panel: var(--color-panel);
+  --app-ink: var(--color-ink);
+  --app-ink-muted: var(--color-ink-muted);
+  --app-hairline: var(--color-hairline);
+  --app-accent: oklch(0.53 0.16 275);
+  --app-accent-soft: oklch(0.95 0.03 275);
+  --app-grid: oklch(0.88 0.01 265);
+}
+
+.dark {
+  color-scheme: dark;
+  --app-canvas: oklch(0.19 0.015 265);
+  --app-panel: oklch(0.235 0.018 265);
+  --app-ink: oklch(0.96 0.005 265);
+  --app-ink-muted: oklch(0.72 0.02 265);
+  --app-hairline: oklch(0.32 0.015 265);
+  --app-accent: oklch(0.75 0.13 275);
+  --app-accent-soft: oklch(0.3 0.05 275);
+  --app-grid: oklch(0.33 0.02 265);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--app-canvas);
+  color: var(--app-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Superficies propias de la app: siguen el tema claro/oscuro de HeroUI. */
+.panel {
+  background-color: var(--app-panel);
+  border: 1px solid var(--app-hairline);
+}
+
+.hairline {
+  border-color: var(--app-hairline);
+}
+
+.text-muted-app {
+  color: var(--app-ink-muted);
+}
+
+.accent-bar {
+  background-color: var(--app-accent);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+::selection {
+  background-color: var(--app-accent-soft);
+  color: var(--app-ink);
+}
+
+/*
+ * Informe en PDF: la vista de informe se imprime con A4, tema claro y cada paso del
+ * enunciado en su propia página. Los gráficos y las tablas no se cortan al medio.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  /* El PDF siempre sale en claro, aunque el tablero esté en tema oscuro. */
+  :root,
+  .dark {
+    color-scheme: light;
+    --app-canvas: #ffffff;
+    --app-panel: #ffffff;
+    --app-ink: #1b1b1f;
+    --app-ink-muted: #55555f;
+    --app-hairline: #d8d8de;
+    --app-accent: #4b3bb3;
+    --app-accent-soft: #efecfb;
+    --app-grid: #d8d8de;
+  }
+
+  html {
+    scroll-behavior: auto;
+    scroll-padding-top: 0;
+  }
+
+  body {
+    background-color: #ffffff;
+    /* Sin alto mínimo de viewport: evita una página en blanco al final del PDF. */
+    min-height: 0 !important;
+  }
+
+  .min-h-dvh {
+    min-height: 0 !important;
+  }
+
+  .no-print,
+  header.sticky nav {
+    display: none !important;
+  }
+
+  .report-page {
+    max-width: none !important;
+    padding: 0 !important;
+    /* En impresión el contenedor pasa a bloque: Chrome ignora `break-*` dentro de un flex. */
+    display: block !important;
+  }
+
+  .report-page > * + * {
+    margin-top: 1.1rem;
+  }
+
+  #report-cover {
+    break-after: page;
+  }
+
+  .report-section {
+    /* Las tarjetas de HeroUI son flex: en bloque fragmentan sin dejar páginas vacías. */
+    display: block !important;
+  }
+
+  /* Los gráficos y las filas no se cortan; las tarjetas y tablas sí fluyen entre páginas
+     (evitarlo dejaba páginas en blanco al final del PDF). */
+  figure,
+  tr,
+  li {
+    break-inside: avoid;
+  }
+
+  /* En papel no hay scroll: las tablas deben fluir enteras, sin recortes. */
+  .report-page .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  .report-page table {
+    width: 100% !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
